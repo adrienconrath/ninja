@@ -36,6 +36,7 @@
 #include "disk_interface.h"
 #include "graph.h"
 #include "graphviz.h"
+#include "jsondump.h"
 #include "manifest_parser.h"
 #include "metrics.h"
 #include "state.h"
@@ -103,6 +104,7 @@ struct NinjaMain : public BuildLogUser {
 
   // The various subcommands, run via "-t XXX".
   int ToolGraph(int argc, char* argv[]);
+  int ToolJson(int argc, char* argv[]);
   int ToolQuery(int argc, char* argv[]);
   int ToolDeps(int argc, char* argv[]);
   int ToolBrowse(int argc, char* argv[]);
@@ -321,6 +323,23 @@ int NinjaMain::ToolGraph(int argc, char* argv[]) {
   for (vector<Node*>::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
     graph.AddTarget(*n);
   graph.Finish();
+
+  return 0;
+}
+
+int NinjaMain::ToolJson(int argc, char* argv[]) {
+  vector<Node*> nodes;
+  string err;
+  if (!CollectTargetsFromArgs(argc, argv, &nodes, &err)) {
+    Error("%s", err.c_str());
+    return 1;
+  }
+
+  JsonDump dump;
+  dump.Start();
+  for (vector<Node*>::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
+    dump.AddTarget(*n);
+  dump.Finish();
 
   return 0;
 }
@@ -710,6 +729,8 @@ const Tool* ChooseTool(const string& tool_name) {
       Tool::RUN_AFTER_LOGS, &NinjaMain::ToolDeps },
     { "graph", "output graphviz dot file for targets",
       Tool::RUN_AFTER_LOAD, &NinjaMain::ToolGraph },
+    { "json", "output graph in json format",
+      Tool::RUN_AFTER_LOAD, &NinjaMain::ToolJson },
     { "query", "show inputs/outputs for a path",
       Tool::RUN_AFTER_LOGS, &NinjaMain::ToolQuery },
     { "targets",  "list targets by their rule or depth in the DAG",
