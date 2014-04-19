@@ -86,7 +86,7 @@ void JsonDump::AddTarget(Node* node) {
   if (!edge->is_phony()) {
     printf(",\n");
     std::string cmd = edge->EvaluateCommand();
-    printf("      \"cmd:\": \"");
+    printf("      \"cmd\": \"");
     printJsonString(cmd.c_str());
     putchar('"');
   }
