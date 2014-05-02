@@ -90,6 +90,13 @@ void JsonDump::AddTarget(Node* node) {
     printJsonString(cmd.c_str());
     putchar('"');
   }
+  string depfile = edge->GetBinding("depfile");
+  if (!depfile.empty()) {
+    printf(",\n");
+    printf("      \"depfile\": \"");
+    printJsonString(depfile.c_str());
+    putchar('"');
+  }
   printf("\n    }");
 
   first_ = false;
