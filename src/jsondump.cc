@@ -62,6 +62,11 @@ void JsonDump::AddTarget(Node* node) {
     return;
   visited_edges_.insert(edge);
 
+  /* If the rule, do not contain inputs and has no command, then this rule is
+   * only to check the files (the outputs) are not missing.
+   * This is already checked by falcon, there is no need to add this rule */
+  if (edge->inputs_.empty() && edge->EvaluateCommand().empty()) { return; }
+
   std::vector<std::string> inputs;
   for (vector<Node*>::iterator in = edge->inputs_.begin();
       in != edge->inputs_.end(); ++in) {
